@@ -1,0 +1,53 @@
+{#
+This file is part of EC-CUBE
+
+Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+
+http://www.lockon.co.jp/
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#}
+{% macro tree(Category, key = null, requestId = null) %}
+    {% set key = key|default('') %}
+    {% set reqestId = reqestId|default('') %}
+    {% set show = false %}
+    {% if requestId == Category.id %}
+        {% set show = true %}
+    {% endif %}
+    {% set isParent = false %}
+    {% if Category.children|length > 0 %}
+        {% set isParent = true %}
+    {% endif %}
+    <li>
+        <a href="{{ url('product_list') }}?category_id={{ Category.id }}" class="{% if key is not empty %}bg0{{ key }}{% endif %}{% if isParent == true %} parents{% endif %}">
+            {{ Category.name }}
+        </a>
+        {% if Category.children|length > 0 %}
+            <ul class="subNavi {% if show == true %}block{% endif %}">
+                {% for ChildCategory in Category.children %}
+                    {{ _self.tree(ChildCategory, null, requestId) }}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </li>
+{% endmacro %}
+{% set requestId = app.request.get('category_id') %}
+<div id="lNavi">
+    <ul>
+        {% for key,Category in Categories %}
+            {{ _self.tree(Category, key+1, requestId) }}
+        {% endfor %}
+    </ul>
+</div>
